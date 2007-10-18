@@ -14,21 +14,31 @@ benchmark_map = {
     # ## Mapping of an alias to a list of benchmark names:
     # benchmark-alias: [benchmark-name, ...],
 
-    'all': ['updates'],
+    'all': ['find', 'updates'],
+
+    # ---
+
+    'find': ['find-entity-values',
+             ],
+
+    'find-entity-values':
+    'schevobenchmark.benchmarks.find_entity_values',
+
+    # ---
 
     'updates': ['update-few-fields-entity-fields',
-                'update-several-fields-entity-fields',
                 'update-indexed-entities',
+                'update-several-fields-entity-fields',
                 ],
 
     'update-few-fields-entity-fields':
     'schevobenchmark.benchmarks.update_few_fields_entity_fields',
-    
-    'update-several-fields-entity-fields':
-    'schevobenchmark.benchmarks.update_several_fields_entity_fields',
 
     'update-indexed-entities':
     'schevobenchmark.benchmarks.update_indexed_entities',
+    
+    'update-several-fields-entity-fields':
+    'schevobenchmark.benchmarks.update_several_fields_entity_fields',
     }
 
 
