@@ -1,0 +1,189 @@
+=======================
+ Using SchevoBenchmark
+=======================
+
+
+.. sectnum::
+
+.. contents::
+
+
+Introduction
+============
+
+SchevoBenchmark is a project that helps determine the performance
+side-effects of changes to the Schevo project.
+
+It allows you to do the following:
+
+- Create benchmark suites by creating special database schemata.
+
+- Collect benchmarks together in groups.
+
+- Run benchmark suites and determine best run time for each section of
+  a suite.
+
+- Record benchmark results in a Schevo database.
+
+- View reports of benchmark results, for comparing revisions of
+  Schevo.
+
+
+Creating benchmark suites
+=========================
+
+
+Getting started
+---------------
+
+In the `schevobenchmark.benchmarks` package directory, create a new
+child package with the name of your benchmark suite.
+
+In the package directory you just created, add a corresponding
+database schema file.  For instance, if you named your benchmark
+package ``create_frobs``, name your schema file
+``create_frobs_001.py``.
+
+In the `schevobenchmark.mapping` module, add an entry to the
+`benchmark_map` dictionary where the key is the name of your benchmark
+suite, and the value is the name of the package that contains your
+schema.  For instance, the example above would be added as follows::
+
+    'create-frobs':
+    'schevobenchmark.benchmarks.create_frobs',
+
+
+Building the schema
+-------------------
+
+Add classes and methods to your schema as needed by your benchmark
+suite.
+
+Define an optional database-level extension method called
+`x_setup_benchmark(db)` if your benchmark needs some setup.  Benchmark
+tools do not record the execution time of this method.
+
+Define database-level extension methods beginning with `x_benchmark`
+and accepting the `db` argument.  Benchmark methods are run in
+alphabetical order, and execution time of each method is tracked.  Use
+a pattern of using numerals near the beginning of the method name to
+force a sorting order, such as `x_benchmark_1_this_is_run_first` and
+`x_benchmark_2_run_second`.
+
+
+Using random numbers
+--------------------
+
+It is reasonably safe to use Python's `random` module to generate data.
+
+When each benchmark suite is run, Python's random number generator is
+seeded with ``1`` for the `x_setup_benchmark` method, then seeded with
+``2`` just before running the first benchmark method.
+
+Therefore, each repetition of a benchmark suite is deterministic as
+far as pseudo-random number generation goes.
+
+Name new benchmarks so that they are run after existing ones. If you
+add new benchmark methods before already-existing ones, you will
+change the order in which data is executed, and you will want to
+re-run tests against specific versions of Schevo as old results of a
+benchmark method will not be trustworthy in comparison to new results.
+
+
+Examples
+--------
+
+For examples, review the existing benchmarks provided with
+SchevoBenchmark.
+
+
+Grouping benchmarks
+===================
+
+In the `schevobenchmark.mapping` file, edit the `benchmark_map`
+dictionary to group benchmarks together.
+
+When the `schevo benchmark` tool (described further in `Running
+benchmarks`_) resolves the names you give it against `benchmark_map`,
+it treats string values as names of schema packages to load, and lists
+as lists of other names to resolve.  Each name in the list is resolved
+recursively, so lists may point to other lists.
+
+From that dictionary, as of this writing, here are some examples of
+grouping benchmarks together::
+
+    'all': ['find', 'updates'],
+
+    'find': ['find-entity-values',
+             ],
+
+    'updates': ['update-few-fields-entity-fields',
+                'update-indexed-entities',
+                'update-several-fields-entity-fields',
+                ],
+
+
+Running benchmarks
+==================
+
+SchevoBenchmark includes the `schevo benchmark` command-line tool to
+run benchmarks and record execution times.
+
+- ``schevo benchmark`` *[options]*  `NAME`  [ `NAME` [ ... ] ]
+				   
+  Run the named benchmarks.
+
+  `NAME`: The name of a benchmark to run. More than one name may be
+  specified; multiple benchmarks are run sequentially.
+
+  Options::
+
+    -B NAME, --backend=NAME
+                        Use the named backend.
+    -A ARGS, --backend-args=ARGS
+                        Pass the given arguments to the backend.
+    -T TRACE, --trace=TRACE
+                        Set Schevo tracing level.
+    -d NAME, --database=NAME
+                        Store benchmark results in the named database.
+    -r COUNT, --repeat=COUNT
+                        Repeat each benchmark COUNT times.
+
+- ``schevo benchmark list``
+
+  Show a list of all available benchmarks.
+
+
+Recording benchmark results
+===========================
+
+Create a new database to hold the results of benchmark executions.
+For example, to create a database called ``b.db``, run the following::
+
+  schevo db create -aschevobenchmark b.db
+
+When running benchmarks, specify your database as an option, and the
+tool will store the best execution time of each suite, along with your
+host name, the date and time the benchmark started, and the version of
+Schevo used.
+
+For example, to run all benchmarks and store results in ``b.db``, run
+the following::
+
+  schevo benchmark -db.db all
+
+
+Viewing reports of benchmark results
+====================================
+
+You can view a simple report showing information about the best
+execution time for each section of each benchmark on each machine that
+the benchmark was executed on.
+
+First, open a shell with the benchmark result database::
+
+  schevo shell b.db
+
+Next, call the `print_report` extension method of the database::
+
+  >>> db.x.print_report()
