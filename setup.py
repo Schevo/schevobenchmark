@@ -18,8 +18,7 @@ setup(
     or Schevo backends will find this useful when optimizing
     algorithms used by Schevo.
     
-    The latest development version is available in a `Subversion
-    repository
+    You can also get the `latest development version
     <http://getschevo.org/hg/repos.cgi/schevobenchmark-dev/archive/tip.tar.gz#egg=SchevoBenchmark-dev>`__.
 
     .. _Schevo: http://schevo.org/
