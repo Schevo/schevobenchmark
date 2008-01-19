@@ -20,7 +20,7 @@ setup(
     
     The latest development version is available in a `Subversion
     repository
-    <http://schevo.org/svn/trunk/Benchmark#egg=SchevoBenchmark-dev>`__.
+    <http://getschevo.org/hg/repos.cgi/schevobenchmark-dev/archive/tip.tar.gz#egg=SchevoBenchmark-dev>`__.
 
     .. _Schevo: http://schevo.org/
     """),
